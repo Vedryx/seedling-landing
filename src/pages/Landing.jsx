@@ -4,6 +4,7 @@ import SiteFooter from '../components/SiteFooter.jsx';
 import SampleNote from '../components/SampleNote.jsx';
 import BookingSheet from '../components/BookingSheet.jsx';
 import { SESSION } from '../config.js';
+import { track } from '../lib/analytics.js';
 
 const ANSWERS = [
   ['What’s the point of it?', 'In my view, it checks whether your child’s learning is paying off: whether the problem-solving school teaches actually shows up when they face something new. You either get reassurance that it does, or you find out what to work on.'],
@@ -18,7 +19,10 @@ export default function Landing() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [stickyVisible, setStickyVisible] = useState(false);
   const heroCtaRef = useRef(null);
-  const openBooking = () => setBookingOpen(true);
+  const openBooking = (source) => {
+    track('booking_sheet_opened', { source });
+    setBookingOpen(true);
+  };
 
   // Phones: show the sticky "Book" bar once the main button has scrolled above the viewport.
   useEffect(() => {
@@ -53,7 +57,7 @@ export default function Landing() {
             </ul>
 
             <div className="hero__cta">
-              <button ref={heroCtaRef} type="button" className="btn btn--peach" onClick={openBooking}>
+              <button ref={heroCtaRef} type="button" className="btn btn--peach" onClick={() => openBooking('hero')}>
                 {BOOK_LABEL}
               </button>
               <p className="hero__reassure">Secure payment via Cashfree. Full refund if you cancel 48 hours before.</p>
@@ -72,7 +76,7 @@ export default function Landing() {
               ))}
             </ul>
             <div className="cta">
-              <button type="button" className="btn btn--brown" onClick={openBooking}>{BOOK_LABEL}</button>
+              <button type="button" className="btn btn--brown" onClick={() => openBooking('bottom')}>{BOOK_LABEL}</button>
             </div>
           </div>
         </section>
@@ -82,7 +86,7 @@ export default function Landing() {
 
       {/* Phones only (hidden from 720px in CSS) */}
       <div className={`sticky-book${stickyVisible ? ' is-visible' : ''}`}>
-        <button type="button" className="btn btn--peach btn--slim" onClick={openBooking}>
+        <button type="button" className="btn btn--peach btn--slim" onClick={() => openBooking('sticky')}>
           {SESSION.priceLabel} · Book your child’s session
         </button>
       </div>

@@ -31,7 +31,24 @@ Before going live:
 - Switch `CASHFREE_ENV` / `VITE_CASHFREE_MODE` to `production`.
 - Whitelist your domain in the Cashfree dashboard.
 
+## Analytics (PostHog, US cloud, project 655191)
+- `src/lib/analytics.js` loads PostHog lazily after the page renders. The token is in `.env.production`. It's a public client key, so it's safe to commit.
+- Requests go through `/ingest`, proxied by `vercel.json` and, locally, by `vite.config.js`. That way ad blockers don't drop them.
+- Automatic: pageviews (including route changes), clicks (autocapture), web vitals, JS errors. Session replay runs only if it's enabled in PostHog, and all inputs are masked.
+- Custom events (every event carries `landing_version: "b"`):
+
+| Event | Properties |
+|---|---|
+| `sample_note_expanded` | — |
+| `booking_sheet_opened` | `source`: hero / bottom / sticky |
+| `booking_form_invalid` | `fields` (names only, never values) |
+| `checkout_started` | `child_class`, `has_email` |
+| `checkout_failed` | `reason` |
+| `payment_result` | `status`: paid / pending / failed / unknown, `order_id`, `revenue`, `currency` |
+
+Never send names, phone numbers or emails to PostHog. Local dev sends nothing unless `VITE_POSTHOG_KEY` is set in `.env.local`.
+
 ## Placeholders
-- `VITE_SITE_URL` — used for canonical / og tags in `index.html`
+- `VITE_SITE_URL` — canonical / og tags in `index.html` (production value in `.env.production`)
 - `META_PIXEL_ID` — commented block in `index.html`
 - Session details (dates, venue, price, WhatsApp) — `src/config.js`

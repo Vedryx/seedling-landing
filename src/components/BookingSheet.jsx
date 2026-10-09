@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SESSION } from '../config.js';
 import { preloadCashfree, startCheckout } from '../lib/payments.js';
+import { track } from '../lib/analytics.js';
 
 const EMPTY = { parentName: '', phone: '', email: '', childName: '', childClass: '' };
 
@@ -56,11 +57,13 @@ export default function BookingSheet({ open, onClose }) {
     const found = validate(booking);
     setErrors(found);
     if (Object.keys(found).length) {
+      track('booking_form_invalid', { fields: Object.keys(found) }); // field names only, never values
       dialogRef.current?.querySelector(`[name="${Object.keys(found)[0]}"]`)?.focus();
       return;
     }
     setStatus('submitting');
     setMessage('');
+    track('checkout_started', { child_class: Number(booking.childClass), has_email: Boolean(booking.email) });
     try {
       await startCheckout({ ...booking, version: SESSION.version });
       // Cashfree redirects away; if it returns here the parent is still on the page.
@@ -68,6 +71,7 @@ export default function BookingSheet({ open, onClose }) {
     } catch (err) {
       setStatus('error');
       setMessage(err.message);
+      track('checkout_failed', { reason: err.message });
     }
   }
 

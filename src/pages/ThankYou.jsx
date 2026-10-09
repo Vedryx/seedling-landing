@@ -4,6 +4,7 @@ import SiteHeader from '../components/SiteHeader.jsx';
 import SiteFooter from '../components/SiteFooter.jsx';
 import { SESSION, CONTACT } from '../config.js';
 import { getOrderStatus } from '../lib/payments.js';
+import { track } from '../lib/analytics.js';
 
 const firedPurchases = new Set();
 
@@ -31,6 +32,11 @@ export default function ThankYou() {
     getOrderStatus(orderId)
       .then((status) => {
         if (cancelled) return;
+        track('payment_result', {
+          status: status === 'PAID' ? 'paid' : status === 'ACTIVE' ? 'pending' : 'failed',
+          order_id: orderId,
+          ...(status === 'PAID' && { revenue: SESSION.price, currency: 'INR' }),
+        });
         if (status === 'PAID') {
           setState('paid');
           trackPurchase(orderId);
@@ -38,7 +44,11 @@ export default function ThankYou() {
           setState(status === 'ACTIVE' ? 'pending' : 'failed');
         }
       })
-      .catch(() => !cancelled && setState('unknown'));
+      .catch(() => {
+        if (cancelled) return;
+        setState('unknown');
+        track('payment_result', { status: 'unknown', order_id: orderId });
+      });
     return () => { cancelled = true; };
   }, [orderId]);
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { track } from '../lib/analytics.js';
 
 const OBSERVATIONS = [
   ['How she started', 'She picked up a piece within a few seconds and began with the largest one.'],
@@ -47,7 +48,7 @@ export default function SampleNote() {
         type="button"
         aria-controls="sample-note"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
+        onClick={() => { setOpen(true); track('sample_note_expanded'); }}
       >
         Read the full sample note
       </button>
