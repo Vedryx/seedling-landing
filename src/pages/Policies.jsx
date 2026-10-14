@@ -1,53 +1,33 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import SiteHeader from '../components/SiteHeader.jsx';
 import SiteFooter from '../components/SiteFooter.jsx';
-import { CONTACT } from '../config.js';
+import { POLICIES, POLICY_LINKS } from '../content/policies.jsx';
 
-const SECTIONS = [
-  { id: 'terms', title: 'Terms', items: [
-    'The session is an observation. It isn’t a psychological, medical or educational assessment, and it isn’t a diagnosis.',
-    'A parent or guardian drops off and collects the child.',
-  ] },
-  { id: 'privacy', title: 'Privacy', items: [
-    'Only your child’s first name and class are used.',
-    'They are used only for the session and your note.',
-    'Nothing is shared.',
-    'Notes are deleted after 3 months.',
-    // DEVELOPER: if the Meta Pixel is enabled, add a line saying the site uses it to measure visits from ads.
-  ] },
-  { id: 'refunds', title: 'Refunds', items: [
-    'Full refund if you cancel at least 48 hours before your session.',
-    'Full refund if the session is cancelled or rescheduled.',
-  ] },
-  { id: 'contact', title: 'Contact', items: [
-    <>WhatsApp: <a href={CONTACT.whatsappUrl}>{CONTACT.whatsappLabel}</a></>,
-    <>Email: <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></>,
-  ] },
-];
+export function PolicyPage({ slug }) {
+  const policy = POLICIES.find((p) => p.slug === slug);
 
-export default function Policies() {
   return (
     <>
       <SiteHeader />
       <main>
         <div className="page-head">
           <div className="wrap">
-            <h1>Terms, privacy and refunds</h1>
-            <nav aria-label="On this page">
+            <h1>{policy.title}</h1>
+            <nav aria-label="Policies">
               <ul className="toc">
-                {SECTIONS.map(({ id, title }) => (
-                  <li key={id}><Link to={`#${id}`}>{title}</Link></li>
+                {POLICY_LINKS.filter((p) => p.slug !== slug).map((p) => (
+                  <li key={p.slug}><Link to={`/${p.slug}`}>{p.title}</Link></li>
                 ))}
               </ul>
             </nav>
           </div>
         </div>
 
-        {SECTIONS.map(({ id, title, items }) => (
-          <section key={id} className="policy" id={id} aria-labelledby={`${id}-h`}>
+        {policy.sections.map((section, i) => (
+          <section key={i} className="policy" aria-label={section.heading}>
             <div className="wrap">
-              <h2 id={`${id}-h`}>{title}</h2>
-              <ul>{items.map((item, i) => <li key={i}>{item}</li>)}</ul>
+              {section.heading && <h2>{section.heading}</h2>}
+              <ul>{section.items.map((item, j) => <li key={j}>{item}</li>)}</ul>
             </div>
           </section>
         ))}
@@ -55,4 +35,17 @@ export default function Policies() {
       <SiteFooter />
     </>
   );
+}
+
+// Old links (/policies#refunds etc.) go to the matching new page.
+const LEGACY = {
+  terms: 'terms-and-conditions',
+  privacy: 'privacy-policy',
+  refunds: 'refunds-and-cancellations',
+  contact: 'contact-us',
+};
+
+export function LegacyPolicies() {
+  const { hash } = useLocation();
+  return <Navigate to={`/${LEGACY[hash.slice(1)] || 'terms-and-conditions'}`} replace />;
 }
