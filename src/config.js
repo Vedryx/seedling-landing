@@ -1,8 +1,13 @@
 // Session details shown across the site. Change them here only.
+import { formatInr } from '../shared/pricing.js';
+
+// Set at build time from SESSION_PRICE_INR (see vite.config.js).
+const PRICE_INR = __SESSION_PRICE_INR__;
+
 export const SESSION = {
   version: 'b',
-  price: 799,
-  priceLabel: '₹799',
+  price: PRICE_INR,
+  priceLabel: formatInr(PRICE_INR),
   dates: '24th & 25th October 2026',
   venue: 'Society Club house, Masulkar colony, Pimpri, Pune',
   capacity: 'Up to 8 children per session',
@@ -13,7 +18,6 @@ export const SESSION = {
 // Must match the Cashfree KYC.
 export const BUSINESS = {
   legalName: 'Vedryx Technologies LLP',
-  address: 'K-603, Mahindra Royale, Kharalwadi, Pimpri, Pune, Maharashtra 411018',
   gstin: '', // not GST-registered
   registeredEmail: '', // same contact as The Seedling, so not shown twice
   responseTime: 'within 24 hours, 10am to 7pm, Monday to Saturday',

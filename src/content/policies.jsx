@@ -14,7 +14,6 @@ export const POLICIES = [
       {
         items: [
           <>{operator}.</>,
-          <>Registered address: {BUSINESS.address}</>,
           ...(BUSINESS.gstin ? [<>GSTIN: {BUSINESS.gstin}</>] : []),
           ...(BUSINESS.registeredEmail
             ? [<>Business email: <a href={`mailto:${BUSINESS.registeredEmail}`}>{BUSINESS.registeredEmail}</a></>]
