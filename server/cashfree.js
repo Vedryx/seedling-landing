@@ -1,6 +1,7 @@
 // Cashfree PG order logic shared by the local dev server (server/index.js)
 // and the Vercel functions (api/orders/*). Secrets are read from env only.
 import { randomUUID } from 'node:crypto';
+import { parsePriceInr } from '../shared/pricing.js';
 
 const {
   CASHFREE_APP_ID,
@@ -8,6 +9,7 @@ const {
   CASHFREE_ENV = 'sandbox',
   SITE_URL,
   CASHFREE_ORDER_EXPIRY_HOURS = '24',
+  SESSION_PRICE_INR,
 } = process.env;
 
 export const isConfigured = Boolean(CASHFREE_APP_ID && CASHFREE_SECRET_KEY);
@@ -16,8 +18,8 @@ export const cashfreeEnv = CASHFREE_ENV;
 const CASHFREE_BASE = CASHFREE_ENV === 'production' ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
 const API_VERSION = '2025-01-01';
 
-// Price is fixed here, never taken from the browser.
-const PRICE_INR = 799;
+// Price comes from SESSION_PRICE_INR (same variable the page is built with), never from the browser.
+const PRICE_INR = parsePriceInr(SESSION_PRICE_INR);
 const ALLOWED_CLASSES = new Set(['2', '3', '4', '5', '6', '7', '8']);
 
 async function cashfree(path, init = {}) {
