@@ -10,14 +10,14 @@ export const SESSION = {
 };
 
 // The legal entity that owns the Cashfree account and sells the session.
-// Must match the Cashfree KYC exactly. [CONFIRM] values are placeholders.
+// Must match the Cashfree KYC.
 export const BUSINESS = {
   legalName: 'Vedryx Technologies LLP',
-  address: '[CONFIRM] Registered address, Pune, Maharashtra, PIN',
-  gstin: '', // [CONFIRM] leave empty if not GST-registered
-  registeredEmail: '', // [CONFIRM] the LLP's email on the Cashfree account (shown as the business contact)
-  responseTime: 'within 24 hours, 10am to 7pm, Monday to Saturday', // [CONFIRM]
-  refundDays: '5 to 7 working days', // [CONFIRM]
+  address: 'K-603, Mahindra Royale, Kharalwadi, Pimpri, Pune, Maharashtra 411018',
+  gstin: '', // not GST-registered
+  registeredEmail: '', // same contact as The Seedling, so not shown twice
+  responseTime: 'within 24 hours, 10am to 7pm, Monday to Saturday',
+  refundDays: '5 to 7 working days',
 };
 
 export const CONTACT = {
