@@ -62,7 +62,7 @@ export default function BookingSheet({ open, onClose }) {
     }
     setStatus('submitting');
     setMessage('');
-    track('checkout_started', { child_class: Number(booking.childClass), has_email: Boolean(booking.email) });
+    track('checkout_started', { child_class: Number(booking.childClass), has_email: Boolean(booking.email), amount: SESSION.price, currency: 'INR' });
     try {
       await startCheckout({ ...booking, version: SESSION.version });
       // Cashfree redirects away; if it returns here the parent is still on the page.

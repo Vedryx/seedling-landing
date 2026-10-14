@@ -35,7 +35,9 @@ export default function ThankYou() {
         track('payment_result', {
           status: status === 'PAID' ? 'paid' : status === 'ACTIVE' ? 'pending' : 'failed',
           order_id: orderId,
-          ...(status === 'PAID' && { revenue: SESSION.price, currency: 'INR' }),
+          amount: SESSION.price,
+          currency: 'INR',
+          ...(status === 'PAID' && { revenue: SESSION.price }),
         });
         if (status === 'PAID') {
           setState('paid');
