@@ -7,6 +7,7 @@ const {
   CASHFREE_SECRET_KEY,
   CASHFREE_ENV = 'sandbox',
   SITE_URL,
+  CASHFREE_ORDER_EXPIRY_HOURS = '24',
 } = process.env;
 
 export const isConfigured = Boolean(CASHFREE_APP_ID && CASHFREE_SECRET_KEY);
@@ -43,6 +44,14 @@ async function cashfree(path, init = {}) {
 
 const clean = (v, max = 60) => String(v ?? '').trim().slice(0, max);
 
+// Unpaid orders close after this many hours (Cashfree's default is 30 days).
+// Sent in IST, e.g. 2026-10-15T23:31:00+05:30, matching Cashfree's documented format.
+function orderExpiryTime() {
+  const hours = Math.min(Math.max(Number(CASHFREE_ORDER_EXPIRY_HOURS) || 24, 1), 24 * 7);
+  const istMs = Date.now() + hours * 3600_000 + 330 * 60_000;
+  return new Date(istMs).toISOString().slice(0, 19) + '+05:30';
+}
+
 // Where Cashfree sends the parent back to: SITE_URL if set, otherwise the site the request came from.
 function siteUrl(origin) {
   return (SITE_URL || origin || 'http://localhost:5173').replace(/\/$/, '');
@@ -68,6 +77,7 @@ export async function createOrder(body, origin) {
       order_id: orderId,
       order_amount: PRICE_INR,
       order_currency: 'INR',
+      order_expiry_time: orderExpiryTime(),
       customer_details: {
         customer_id: `p_${booking.phone}`,
         customer_phone: booking.phone,
