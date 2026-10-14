@@ -1,15 +1,14 @@
 import { load } from '@cashfreepayments/cashfree-js';
-import { API_BASE, CASHFREE_MODE } from '../config.js';
+import { API_BASE } from '../config.js';
 
-let cashfreePromise;
-function getCashfree() {
-  cashfreePromise ??= load({ mode: CASHFREE_MODE });
-  return cashfreePromise;
-}
-
-// Warm up the SDK (e.g. when the booking sheet opens) so checkout starts instantly.
-export function preloadCashfree() {
-  getCashfree().catch(() => { cashfreePromise = undefined; });
+// The backend says which mode (sandbox/production) matches its keys.
+const cashfreeByMode = {};
+function getCashfree(mode) {
+  cashfreeByMode[mode] ??= load({ mode }).catch((err) => {
+    delete cashfreeByMode[mode];
+    throw err;
+  });
+  return cashfreeByMode[mode];
 }
 
 async function request(path, options) {
@@ -28,10 +27,8 @@ async function request(path, options) {
  * /thank-you?order_id=… via the return_url set by the backend.
  */
 export async function startCheckout(booking) {
-  const [{ payment_session_id }, cashfree] = await Promise.all([
-    request('/api/orders', { method: 'POST', body: JSON.stringify(booking) }),
-    getCashfree(),
-  ]);
+  const { payment_session_id, mode } = await request('/api/orders', { method: 'POST', body: JSON.stringify(booking) });
+  const cashfree = await getCashfree(mode === 'production' ? 'production' : 'sandbox');
   if (!cashfree) throw new Error('Payment could not load. Please check your connection and try again.');
   const result = await cashfree.checkout({ paymentSessionId: payment_session_id, redirectTarget: '_self' });
   if (result?.error) throw new Error(result.error.message || 'Payment could not start. Please try again.');

@@ -25,7 +25,7 @@ createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');
     if (req.method === 'POST' && url.pathname === '/api/orders') {
-      return send(res, 200, await createOrder(await readJson(req)));
+      return send(res, 200, await createOrder(await readJson(req), req.headers.origin));
     }
     const match = url.pathname.match(/^\/api\/orders\/([^/]+)$/);
     if (req.method === 'GET' && match) {

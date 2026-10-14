@@ -15,5 +15,4 @@ export const CONTACT = {
   email: 'theseedling.edu@gmail.com',
 };
 
-export const CASHFREE_MODE = import.meta.env.VITE_CASHFREE_MODE === 'production' ? 'production' : 'sandbox';
 export const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');

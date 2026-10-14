@@ -6,7 +6,7 @@ const {
   CASHFREE_APP_ID,
   CASHFREE_SECRET_KEY,
   CASHFREE_ENV = 'sandbox',
-  SITE_URL = 'http://localhost:5173',
+  SITE_URL,
 } = process.env;
 
 export const isConfigured = Boolean(CASHFREE_APP_ID && CASHFREE_SECRET_KEY);
@@ -43,7 +43,12 @@ async function cashfree(path, init = {}) {
 
 const clean = (v, max = 60) => String(v ?? '').trim().slice(0, max);
 
-export async function createOrder(body) {
+// Where Cashfree sends the parent back to: SITE_URL if set, otherwise the site the request came from.
+function siteUrl(origin) {
+  return (SITE_URL || origin || 'http://localhost:5173').replace(/\/$/, '');
+}
+
+export async function createOrder(body, origin) {
   const booking = {
     parentName: clean(body.parentName),
     phone: clean(body.phone, 10),
@@ -70,7 +75,7 @@ export async function createOrder(body) {
         ...(booking.email && { customer_email: booking.email }),
       },
       order_meta: {
-        return_url: `${SITE_URL}/thank-you?v=${booking.version}&order_id={order_id}`,
+        return_url: `${siteUrl(origin)}/thank-you?v=${booking.version}&order_id={order_id}`,
         // notify_url: `${API_PUBLIC_URL}/api/cashfree/webhook`, // recommended in production
       },
       order_note: 'The Seedling session',
@@ -82,7 +87,12 @@ export async function createOrder(body) {
     }),
   });
   // TODO(backend): persist the booking against order.order_id here.
-  return { order_id: order.order_id, payment_session_id: order.payment_session_id };
+  // `mode` tells the browser which Cashfree checkout to load, so it always matches the keys.
+  return {
+    order_id: order.order_id,
+    payment_session_id: order.payment_session_id,
+    mode: CASHFREE_ENV === 'production' ? 'production' : 'sandbox',
+  };
 }
 
 export async function getOrder(orderId) {

@@ -28,7 +28,7 @@ npm run dev              # site on :5173 (proxies /api to :8787)
 Before going live:
 - Add a webhook (`notify_url`) and treat it as the source of truth.
 - Save each booking against its `order_id`.
-- Switch `CASHFREE_ENV` / `VITE_CASHFREE_MODE` to `production`.
+- Set `CASHFREE_ENV=production` (the browser checkout follows it automatically).
 - Whitelist your domain in the Cashfree dashboard.
 
 ## Analytics (PostHog, US cloud, project 655191)

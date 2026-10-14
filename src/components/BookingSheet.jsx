@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SESSION } from '../config.js';
-import { preloadCashfree, startCheckout } from '../lib/payments.js';
+import { startCheckout } from '../lib/payments.js';
 import { track } from '../lib/analytics.js';
 
 const EMPTY = { parentName: '', phone: '', email: '', childName: '', childClass: '' };
@@ -39,7 +39,6 @@ export default function BookingSheet({ open, onClose }) {
     if (!dialog) return;
     if (open && !dialog.open) {
       dialog.showModal();
-      preloadCashfree();
     } else if (!open && dialog.open) {
       dialog.close();
     }
