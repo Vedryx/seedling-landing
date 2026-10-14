@@ -16,7 +16,10 @@ export const POLICIES = [
           <>{operator}.</>,
           <>Registered address: {BUSINESS.address}</>,
           ...(BUSINESS.gstin ? [<>GSTIN: {BUSINESS.gstin}</>] : []),
-          <>WhatsApp or phone: {whatsapp}</>,
+          ...(BUSINESS.registeredEmail
+            ? [<>Business email: <a href={`mailto:${BUSINESS.registeredEmail}`}>{BUSINESS.registeredEmail}</a></>]
+            : []),
+          <>For bookings and questions, WhatsApp or call: {whatsapp}</>,
           <>Email: {email}</>,
           <>We reply {BUSINESS.responseTime}.</>,
           <>Session venue: {SESSION.venue}.</>,

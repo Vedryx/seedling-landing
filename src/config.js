@@ -12,9 +12,10 @@ export const SESSION = {
 // The legal entity that owns the Cashfree account and sells the session.
 // Must match the Cashfree KYC exactly. [CONFIRM] values are placeholders.
 export const BUSINESS = {
-  legalName: 'ABC LLP', // [CONFIRM] registered name
+  legalName: 'Vedryx Technologies LLP',
   address: '[CONFIRM] Registered address, Pune, Maharashtra, PIN',
   gstin: '', // [CONFIRM] leave empty if not GST-registered
+  registeredEmail: '', // [CONFIRM] the LLP's email on the Cashfree account (shown as the business contact)
   responseTime: 'within 24 hours, 10am to 7pm, Monday to Saturday', // [CONFIRM]
   refundDays: '5 to 7 working days', // [CONFIRM]
 };
