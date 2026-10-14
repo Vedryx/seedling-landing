@@ -34,8 +34,11 @@ export async function startCheckout(booking) {
   if (result?.error) throw new Error(result.error.message || 'Payment could not start. Please try again.');
 }
 
-/** Returns Cashfree's order_status: PAID | ACTIVE | EXPIRED | TERMINATED | … */
-export async function getOrderStatus(orderId) {
-  const { order_status } = await request(`/api/orders/${encodeURIComponent(orderId)}`);
-  return order_status;
+/**
+ * Returns Cashfree's order_status (PAID | ACTIVE | EXPIRED | TERMINATED | …)
+ * and the amount actually charged on that order.
+ */
+export async function getOrder(orderId) {
+  const { order_status, order_amount, order_currency } = await request(`/api/orders/${encodeURIComponent(orderId)}`);
+  return { status: order_status, amount: Number(order_amount), currency: order_currency || 'INR' };
 }
