@@ -331,3 +331,8 @@ button.btn { border: 0; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .sheet[open] { animation: none; }
 }
+
+/* Legal line in the footer (business that runs The Seedling) */
+.footer__legal { flex-basis: 100%; padding-top: var(--space-2); font-size: 0.9375rem; color: var(--on-brown-soft); }
+.policy:first-of-type .wrap > h2:first-child { margin-top: 0; }
+.policy strong { font-weight: 600; }

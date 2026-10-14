@@ -139,7 +139,7 @@ export default function BookingSheet({ open, onClose }) {
         </button>
         <p className="sheet__reassure">
           Secure payment via Cashfree. Full refund if you cancel 48 hours before.{' '}
-          <Link to="/policies#refunds" onClick={onClose}>Refund policy</Link>
+          <Link to="/refunds-and-cancellations" onClick={onClose}>Refund policy</Link>
         </p>
       </form>
     </dialog>

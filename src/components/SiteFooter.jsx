@@ -1,12 +1,6 @@
 import { Link } from 'react-router-dom';
-import { CONTACT } from '../config.js';
-
-const LINKS = [
-  ['terms', 'Terms'],
-  ['privacy', 'Privacy'],
-  ['refunds', 'Refunds'],
-  ['contact', 'Contact'],
-];
+import { BUSINESS, CONTACT } from '../config.js';
+import { POLICY_LINKS } from '../content/policies.jsx';
 
 export default function SiteFooter({ ask = 'Questions before booking? WhatsApp me:' }) {
   return (
@@ -17,11 +11,12 @@ export default function SiteFooter({ ask = 'Questions before booking? WhatsApp m
         </p>
         <nav aria-label="Policies">
           <ul className="footer__links">
-            {LINKS.map(([id, label]) => (
-              <li key={id}><Link to={`/policies#${id}`}>{label}</Link></li>
+            {POLICY_LINKS.map(({ slug, title }) => (
+              <li key={slug}><Link to={`/${slug}`}>{title}</Link></li>
             ))}
           </ul>
         </nav>
+        <p className="footer__legal">© {new Date().getFullYear()} The Seedling is run by {BUSINESS.legalName}.</p>
       </div>
     </footer>
   );
