@@ -42,9 +42,9 @@ Before going live:
 | `sample_note_expanded` | — |
 | `booking_sheet_opened` | `source`: hero / bottom / sticky |
 | `booking_form_invalid` | `fields` (names only, never values) |
-| `checkout_started` | `child_class`, `has_email` |
+| `checkout_started` | `child_class`, `has_email`, `amount`, `currency` |
 | `checkout_failed` | `reason` |
-| `payment_result` | `status`: paid / pending / failed / unknown, `order_id`, `revenue`, `currency` |
+| `payment_result` | `status`: paid / pending / failed / unknown, `order_id`, `amount`, `currency`, `revenue` (paid only) |
 
 Never send names, phone numbers or emails to PostHog. Local dev sends nothing unless `VITE_POSTHOG_KEY` is set in `.env.local`.
 
