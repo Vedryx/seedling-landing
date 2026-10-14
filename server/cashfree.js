@@ -110,7 +110,12 @@ export async function createOrder(body, origin) {
 export async function getOrder(orderId) {
   if (!/^[\w-]{1,50}$/.test(String(orderId))) throw Object.assign(new Error('Not found'), { status: 404 });
   const order = await cashfree(`/orders/${orderId}`);
-  return { order_id: order.order_id, order_status: order.order_status };
+  return {
+    order_id: order.order_id,
+    order_status: order.order_status,
+    order_amount: order.order_amount, // what Cashfree charged, used for analytics
+    order_currency: order.order_currency,
+  };
 }
 
 // Hides internal errors from the browser; 4xx messages are safe to show.

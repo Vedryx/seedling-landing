@@ -3,17 +3,17 @@ import { Link, useSearchParams } from 'react-router-dom';
 import SiteHeader from '../components/SiteHeader.jsx';
 import SiteFooter from '../components/SiteFooter.jsx';
 import { SESSION, CONTACT } from '../config.js';
-import { getOrderStatus } from '../lib/payments.js';
+import { getOrder } from '../lib/payments.js';
 import { track } from '../lib/analytics.js';
 
 const firedPurchases = new Set();
 
-function trackPurchase(orderId) {
+function trackPurchase(orderId, amount, currency) {
   if (!window.fbq || firedPurchases.has(orderId)) return;
   firedPurchases.add(orderId);
   window.fbq('track', 'Purchase', {
-    value: SESSION.price,
-    currency: 'INR',
+    value: amount,
+    currency,
     content_name: 'The Seedling session',
     content_category: `version_${SESSION.version}`,
   }, { eventID: orderId }); // eventID de-duplicates refreshes / server-side events
@@ -29,19 +29,22 @@ export default function ThankYou() {
   useEffect(() => {
     if (!orderId) return;
     let cancelled = false;
-    getOrderStatus(orderId)
-      .then((status) => {
+    getOrder(orderId)
+      .then(({ status, amount: charged, currency }) => {
         if (cancelled) return;
+        // Use the amount on the Cashfree order, not the page's current price,
+        // so analytics match Cashfree even if the price changed mid-checkout.
+        const amount = Number.isFinite(charged) && charged > 0 ? charged : SESSION.price;
         track('payment_result', {
           status: status === 'PAID' ? 'paid' : status === 'ACTIVE' ? 'pending' : 'failed',
           order_id: orderId,
-          amount: SESSION.price,
-          currency: 'INR',
-          ...(status === 'PAID' && { revenue: SESSION.price }),
+          amount,
+          currency,
+          ...(status === 'PAID' && { revenue: amount }),
         });
         if (status === 'PAID') {
           setState('paid');
-          trackPurchase(orderId);
+          trackPurchase(orderId, amount, currency);
         } else {
           setState(status === 'ACTIVE' ? 'pending' : 'failed');
         }
