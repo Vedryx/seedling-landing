@@ -1,9 +1,11 @@
 // Local dev payment API (Vercel uses api/orders/* instead). No dependencies, Node 20+.
 //   POST /api/orders            -> { order_id, payment_session_id }
 //   GET  /api/orders/:order_id  -> { order_id, order_status }
+//   POST /api/cashfree/webhook  -> Cashfree payment notifications (booking email)
 // Run: cp .env.example .env, fill in sandbox keys, then `npm run server`.
 import { createServer } from 'node:http';
 import { createOrder, getOrder, errorResponse, isConfigured, cashfreeEnv } from './cashfree.js';
+import { handleCashfreeWebhook } from './webhook.js';
 
 const PORT = process.env.PORT || 8787;
 
@@ -24,6 +26,16 @@ async function readJson(req) {
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');
+    if (req.method === 'POST' && url.pathname === '/api/cashfree/webhook') {
+      let rawBody = '';
+      for await (const chunk of req) rawBody += chunk;
+      const { status, body } = await handleCashfreeWebhook({
+        rawBody,
+        timestamp: req.headers['x-webhook-timestamp'],
+        signature: req.headers['x-webhook-signature'],
+      });
+      return send(res, status, body);
+    }
     if (req.method === 'POST' && url.pathname === '/api/orders') {
       return send(res, 200, await createOrder(await readJson(req), req.headers.origin));
     }

@@ -1,6 +1,6 @@
 // Cashfree PG order logic shared by the local dev server (server/index.js)
 // and the Vercel functions (api/orders/*). Secrets are read from env only.
-import { randomUUID } from 'node:crypto';
+import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { parsePriceInr } from '../shared/pricing.js';
 
 const {
@@ -88,7 +88,9 @@ export async function createOrder(body, origin) {
       },
       order_meta: {
         return_url: `${siteUrl(origin)}/thank-you?v=${booking.version}&order_id={order_id}`,
-        // notify_url: `${API_PUBLIC_URL}/api/cashfree/webhook`, // recommended in production
+        // Cashfree calls this when the payment succeeds or fails (see server/webhook.js).
+        // Cashfree only accepts https, so it's skipped in local dev.
+        ...(siteUrl(origin).startsWith('https://') && { notify_url: `${siteUrl(origin)}/api/cashfree/webhook` }),
       },
       order_note: 'The Seedling session',
       order_tags: {
@@ -107,9 +109,26 @@ export async function createOrder(body, origin) {
   };
 }
 
-export async function getOrder(orderId) {
+// Full Cashfree order, including customer_details and order_tags. Server-side use only.
+export async function fetchOrder(orderId) {
   if (!/^[\w-]{1,50}$/.test(String(orderId))) throw Object.assign(new Error('Not found'), { status: 404 });
-  const order = await cashfree(`/orders/${orderId}`);
+  return cashfree(`/orders/${orderId}`);
+}
+
+// Checks a webhook really came from Cashfree: Base64 HMAC-SHA256 of timestamp + raw body,
+// keyed with the secret key. Cashfree's docs show the signed string both with and
+// without a "." between the two, so either is accepted.
+export function verifyWebhookSignature(rawBody, timestamp, signature) {
+  if (!isConfigured || !rawBody || !timestamp || !signature) return false;
+  const given = Buffer.from(String(signature));
+  return [`${timestamp}${rawBody}`, `${timestamp}.${rawBody}`].some((signed) => {
+    const expected = Buffer.from(createHmac('sha256', CASHFREE_SECRET_KEY).update(signed).digest('base64'));
+    return expected.length === given.length && timingSafeEqual(expected, given);
+  });
+}
+
+export async function getOrder(orderId) {
+  const order = await fetchOrder(orderId);
   return {
     order_id: order.order_id,
     order_status: order.order_status,
