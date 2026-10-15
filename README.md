@@ -26,10 +26,24 @@ npm run dev              # site on :5173 (proxies /api to :8787)
 
 `server/index.js` is a dependency-free reference for those two endpoints. Port them to your real backend; the secret key must never reach the browser.
 Before going live:
-- Add a webhook (`notify_url`) and treat it as the source of truth.
 - Save each booking against its `order_id`.
 - Set `CASHFREE_ENV=production` (the browser checkout follows it automatically).
 - Whitelist your domain in the Cashfree dashboard.
+
+## Booking email (Resend)
+When a payment succeeds, Cashfree calls `POST /api/cashfree/webhook` (set per order as `notify_url`).
+The handler (`server/webhook.js`):
+1. Verifies Cashfree's signature.
+2. Re-fetches the order and checks that it's `PAID`.
+3. Emails the booking details via Resend (`server/notify.js`).
+
+The order ID is used as Resend's idempotency key, so Cashfree retries don't send duplicates.
+
+| Env var | Default |
+|---|---|
+| `RESEND_API_KEY` | none. Without it, no email is sent. |
+| `BOOKING_NOTIFY_FROM` | `The Seedling bookings <signup@vedryx.com>`. Must be on a domain verified in Resend. |
+| `BOOKING_NOTIFY_TO` | `theseedling.edu@gmail.com` (comma-separate several) |
 
 ## Analytics (PostHog, US cloud, project 655191)
 - `src/lib/analytics.js` loads PostHog lazily after the page renders. The token is in `.env.production`. It's a public client key, so it's safe to commit.
