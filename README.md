@@ -42,7 +42,7 @@ The order ID is used as Resend's idempotency key, so Cashfree retries don't send
 | Env var | Default |
 |---|---|
 | `RESEND_API_KEY` | none. Without it, no email is sent. |
-| `BOOKING_NOTIFY_FROM` | `The Seedling bookings <signup@vedryxtech.com>`. Must be on a domain verified in Resend. |
+| `BOOKING_NOTIFY_FROM` | `The Seedling bookings <signup@team.vedryxtech.com>`. Must be on a domain verified in Resend. |
 | `BOOKING_NOTIFY_TO` | `theseedling.edu@gmail.com` (comma-separate several) |
 
 ## Analytics (PostHog, US cloud, project 655191)

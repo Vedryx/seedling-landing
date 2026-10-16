@@ -2,7 +2,7 @@
 // RESEND_API_KEY is required. From/to have defaults and can be overridden in env.
 const {
   RESEND_API_KEY,
-  BOOKING_NOTIFY_FROM = 'The Seedling bookings <signup@vedryxtech.com>',
+  BOOKING_NOTIFY_FROM = 'The Seedling bookings <signup@team.vedryxtech.com>',
   BOOKING_NOTIFY_TO = 'theseedling.edu@gmail.com',
 } = process.env;
 
